@@ -1,33 +1,17 @@
-# This is a basic workflow to help you get started with Actions
+name: sync-repositories
 
-name: Sync Repositories
+on: [push, delete]
 
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
-  push:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  to_gitlab:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      - uses: net-engine/github-repository-sync-action@v1
+    steps:                                              # <-- must use actions/checkout before mirroring!
+      - uses: actions/checkout@v2
         with:
-          # The SSH private key for SSH connection to the target repository.
-          # We strongly recommend saving this value as a GitHub Secret and using deploy
-          # keys within the target repository
-          ssh_private_key: ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}
-          # The SSH-based URL to the target repository
-          target_repo_url: git@github.com:net-engine/github-repository-sync-action-test.git
+          fetch-depth: 0
+      - uses: pixta-dev/repository-mirroring-action@v1
+        with:
+          target_repo_url:
+            git@gitlab.com:ahmedig/project1.git
+          ssh_private_key:                              # <-- use 'secrets' to pass credential information.
+            ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}
